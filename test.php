@@ -39,12 +39,7 @@ function create_new_job($token) : ?array
 
     $timestamp = time();
 
-    $post_data = [
-        'projectId'     => '60c8216a668ef671b9901ed9',
-        'output'        => "file_$timestamp",
-        'layer-txt'     => 'Hello world!',
-        'layer-img'     => "https://png.pngtree.com/element_our/20190528/ourmid/pngtree-small-url-icon-opened-on-the-computer-image_1132275.jpg"
-    ];
+    $post_data = json_decode(file_get_contents('create_job.json'), true);
 
     curl_setopt_array($curl, array(
         CURLOPT_URL => 'https://que-api.dataclay.com/api/v1/jobs',
@@ -654,8 +649,24 @@ function get_all_temps($token):?array
     $response = curl_exec($curl);
 
     curl_close($curl);
-    echo $response;
+    file_put_contents('test.txt', var_export(json_decode($response), true));
     return null;
+}
+
+function upload_file_test($token)
+{
+    if (function_exists('curl_file_create')) { // php 5.5+
+        $cFile = curl_file_create(__DIR__.'/text.txt');
+    } else { //
+        $cFile = '@' . realpath(__DIR__.'/text.txt');
+    }
+    $post = array('extra_info' => '123456','file'=> $cFile);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL,'http://34.67.87.192/');
+    curl_setopt($ch, CURLOPT_POST,1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+    $result=curl_exec ($ch);
+    curl_close ($ch);
 }
 
 call_user_func_array($function_name, [$api_org_token]);
